@@ -186,8 +186,8 @@ function SignupForm() {
       email: form.email,
       password: form.password,
       role: role!,
-      college_id: college,
-    });
+      college_id: role === 'student' ? college : null,
+});
 
     setLoading(false);
 
@@ -217,24 +217,26 @@ function SignupForm() {
       </div>
 
       {/* College Selector */}
-      <div>
-        <label className="block text-xs font-medium text-[#A1A1A1] mb-2">College</label>
-        <div className="relative">
-          <select
-            name="college_id"
-            value={college}
-            onChange={e => setCollege(e.target.value)}
-            required
-            className="w-full px-4 py-3 rounded-xl bg-[#181B1E]/70 border border-[#2C2F32] text-[#E6E6E6] focus:ring-2 focus:ring-[#00E1A9] focus:border-[#00E1A9] transition-all shadow-inner appearance-none"
-          >
-            <option value="">Select your college</option>
-            {colleges.map(col => (
-              <option key={col.id} value={col.id}>{col.name}</option>
-            ))}
-          </select>
-          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[#A1A1A1] pointer-events-none">&#9662;</span>
+      {role === 'student' && (
+        <div>
+            <label className="block text-xs font-medium text-[#A1A1A1] mb-2">College</label>
+            <div className="relative">
+            <select
+                name="college_id"
+                value={college}
+                onChange={e => setCollege(e.target.value)}
+                required
+                className="w-full px-4 py-3 rounded-xl bg-[#181B1E]/70 border border-[#2C2F32] text-[#E6E6E6] focus:ring-2 focus:ring-[#00E1A9] focus:border-[#00E1A9] transition-all shadow-inner appearance-none"
+            >
+                <option value="">Select your college</option>
+                {colleges.map(col => (
+                <option key={col.id} value={col.id}>{col.name}</option>
+                ))}
+            </select>
+            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[#A1A1A1] pointer-events-none">&#9662;</span>
+            </div>
         </div>
-      </div>
+      )}
 
       <AccentButton>{loading ? 'Signing Up...' : 'Sign Up'}</AccentButton>
       {message && <div className="text-green-400 text-xs text-center">{message}</div>}

@@ -6,7 +6,7 @@ export async function signUpWithEmail({ name, email, password, role, college_id 
   email: string;
   password: string;
   role: 'student' | 'admin';
-  college_id: string;
+  college_id: string | null;
 }) {
   console.log('SIGNUP:', { email, password });  
   const { data, error } = await supabase.auth.signUp({
