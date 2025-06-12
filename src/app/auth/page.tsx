@@ -1,13 +1,21 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { FiMail, FiLock, FiUser, FiShield } from 'react-icons/fi';
 import { supabase } from '@/lib/supabaseClient';
 import { signUpWithEmail, signInWithEmail, sendPasswordReset } from '@/lib/auth';
 
 export default function AuthPage() {
-  const [activeTab, setActiveTab] = useState<'login' | 'signup' | 'forgot'>('login');
+  const searchParams = useSearchParams();
+  const initialTab = searchParams.get('tab') === 'signup' ? 'signup' : 'login';
+  const [activeTab, setActiveTab] = useState<'login' | 'signup' | 'forgot'>(initialTab);
+
+  useEffect(() => {
+    // If the query param changes, update the tab
+    setActiveTab(searchParams.get('tab') === 'signup' ? 'signup' : 'login');
+  }, [searchParams]);
 
   return (
     <div className="min-h-screen flex bg-[#0E1012] font-inter relative overflow-hidden">
