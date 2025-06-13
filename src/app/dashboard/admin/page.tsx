@@ -7,6 +7,9 @@ import { useRouter } from 'next/navigation';
 import { Sidebar, SidebarBody, SidebarLink } from '@/components/ui/sidebar';
 import { IconBriefcase, IconPlus, IconUsers, IconLogout, IconDashboard } from '@tabler/icons-react';
 import { cn } from '@/lib/utils';
+import JobPostingForm from '@/components/admin/JobPostingForm';
+import JobCard from '@/components/admin/JobCard';
+import JobApplicationsList from '@/components/admin/JobApplicationsList';
 
 interface Job {
   id: string;
@@ -15,6 +18,9 @@ interface Job {
   location: string;
   deadline: string;
   created_at: string;
+  college_id: string;
+  posted_by: string;
+  status?: 'active' | 'inactive';
   applications_count?: number;
 }
 
@@ -31,14 +37,11 @@ export default function AdminDashboard() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [showJobForm, setShowJobForm] = useState(false);
+  const [editingJob, setEditingJob] = useState<Job | null>(null);
+  const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   const [activeView, setActiveView] = useState('dashboard');
-  const [jobForm, setJobForm] = useState({
-    title: '',
-    description: '',
-    location: '',
-    deadline: '',
-  });
   const [open, setOpen] = useState(false);
+  const [formLoading, setFormLoading] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -99,28 +102,83 @@ export default function AdminDashboard() {
       const jobsWithCount = jobsData.map((job) => ({
         ...job,
         applications_count: job.job_applications?.length || 0,
+        status: job.status || 'active',
       }));
       setJobs(jobsWithCount);
     }
   };
 
-  const handleJobSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user?.college_id) return;
+  const handleJobSubmit = async (jobData: Partial<Job>) => {
+    setFormLoading(true);
+    try {
+      if (editingJob) {
+        const { error } = await supabase.from('jobs').update(jobData).eq('id', editingJob.id);
 
-    const { error } = await supabase.from('jobs').insert([
-      {
-        ...jobForm,
-        college_id: user.college_id,
-        posted_by: user.id,
-      },
-    ]);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('jobs')
+          .insert([{ ...jobData, created_at: new Date().toISOString() }]);
 
-    if (!error) {
-      setJobForm({ title: '', description: '', location: '', deadline: '' });
+        if (error) throw error;
+      }
+
       setShowJobForm(false);
-      fetchJobs();
+      setEditingJob(null);
+      await fetchJobs();
+    } catch (error) {
+      console.error('Error submitting job:', error);
+      alert('Failed to save job. Please try again.');
+    } finally {
+      setFormLoading(false);
     }
+  };
+
+  const handleEditJob = (job: Job) => {
+    setEditingJob(job);
+    setShowJobForm(true);
+  };
+
+  const handleDeleteJob = async (jobId: string) => {
+    try {
+      const { error: applicationsError } = await supabase
+        .from('job_applications')
+        .delete()
+        .eq('job_id', jobId);
+
+      if (applicationsError) throw applicationsError;
+
+      const { error: jobError } = await supabase.from('jobs').delete().eq('id', jobId);
+
+      if (jobError) throw jobError;
+
+      await fetchJobs();
+    } catch (error) {
+      console.error('Error deleting job:', error);
+      alert('Failed to delete job. Please try again.');
+    }
+  };
+
+  const handleStatusChange = async (jobId: string, status: 'active' | 'inactive') => {
+    try {
+      const { error } = await supabase.from('jobs').update({ status }).eq('id', jobId);
+
+      if (error) throw error;
+
+      await fetchJobs();
+    } catch (error) {
+      console.error('Error updating job status:', error);
+      throw error;
+    }
+  };
+
+  const handleViewApplications = (jobId: string) => {
+    setSelectedJobId(jobId);
+  };
+
+  const handleCancelForm = () => {
+    setShowJobForm(false);
+    setEditingJob(null);
   };
 
   const handleLogout = async () => {
@@ -201,7 +259,10 @@ export default function AdminDashboard() {
                   onClick={() => {
                     if (link.label === 'Dashboard') setActiveView('dashboard');
                     if (link.label === 'All Jobs') setActiveView('jobs');
-                    if (link.label === 'Post Job') setShowJobForm(true);
+                    if (link.label === 'Post Job') {
+                      setEditingJob(null);
+                      setShowJobForm(true);
+                    }
                     if (link.label === 'Applications') setActiveView('applications');
                     if (link.label === 'Logout') handleLogout();
                   }}
@@ -274,70 +335,15 @@ export default function AdminDashboard() {
           </div>
 
           {/* Job Form Modal */}
-          {showJobForm && (
-            <motion.div
-              className="bg-white rounded-2xl shadow border border-[#dbe7e3] p-8 mb-8"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-[#222]">Post New Job</h2>
-                <button
-                  onClick={() => setShowJobForm(false)}
-                  className="text-[#666] hover:text-[#222] transition"
-                >
-                  ✕
-                </button>
-              </div>
-              <form onSubmit={handleJobSubmit} className="space-y-6">
-                <div>
-                  <label className="block text-[#222] font-medium mb-2">Job Title</label>
-                  <input
-                    type="text"
-                    value={jobForm.title}
-                    onChange={(e) => setJobForm({ ...jobForm, title: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-[#dbe7e3] focus:outline-none focus:border-[#1e7d6b]"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-[#222] font-medium mb-2">Description</label>
-                  <textarea
-                    value={jobForm.description}
-                    onChange={(e) => setJobForm({ ...jobForm, description: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-[#dbe7e3] focus:outline-none focus:border-[#1e7d6b] h-32"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-[#222] font-medium mb-2">Location</label>
-                  <input
-                    type="text"
-                    value={jobForm.location}
-                    onChange={(e) => setJobForm({ ...jobForm, location: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-[#dbe7e3] focus:outline-none focus:border-[#1e7d6b]"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-[#222] font-medium mb-2">Deadline</label>
-                  <input
-                    type="date"
-                    value={jobForm.deadline}
-                    onChange={(e) => setJobForm({ ...jobForm, deadline: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-[#dbe7e3] focus:outline-none focus:border-[#1e7d6b]"
-                    required
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className="px-8 py-3 rounded-full bg-[#1e7d6b] text-white font-semibold shadow hover:scale-105 transition-all duration-200"
-                >
-                  Post Job
-                </button>
-              </form>
-            </motion.div>
+          {showJobForm && user && (
+            <JobPostingForm
+              job={editingJob}
+              onSubmit={handleJobSubmit}
+              onCancel={handleCancelForm}
+              loading={formLoading}
+              userId={user.id}
+              collegeId={user.college_id}
+            />
           )}
 
           {/* Jobs List */}
@@ -351,47 +357,34 @@ export default function AdminDashboard() {
             {jobs.length === 0 ? (
               <div className="bg-white rounded-2xl shadow border border-[#dbe7e3] p-8 text-center">
                 <div className="text-[#222] text-lg">No jobs posted yet</div>
+                <button
+                  onClick={() => setShowJobForm(true)}
+                  className="mt-4 px-6 py-2 rounded-full bg-[#1e7d6b] text-white font-semibold hover:bg-[#1a6b5a] transition-colors"
+                >
+                  Post Your First Job
+                </button>
               </div>
             ) : (
               <div className="grid gap-6">
                 {jobs.map((job, index) => (
-                  <motion.div
+                  <JobCard
                     key={job.id}
-                    className="bg-white rounded-2xl shadow border border-[#dbe7e3] p-6"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
-                  >
-                    <div className="flex justify-between items-start mb-4">
-                      <div>
-                        <h3 className="text-xl font-bold text-[#222] mb-2">{job.title}</h3>
-                        <p className="text-[#222] mb-2">{job.description}</p>
-                        <div className="flex gap-4 text-sm text-[#1e7d6b]">
-                          <span>📍 {job.location}</span>
-                          <span>📅 Deadline: {new Date(job.deadline).toLocaleDateString()}</span>
-                          <span>👥 {job.applications_count || 0} applications</span>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-sm text-[#666]">
-                          Posted {new Date(job.created_at).toLocaleDateString()}
-                        </div>
-                        <div
-                          className={`inline-block px-3 py-1 rounded-full text-xs font-medium mt-2 ${
-                            new Date(job.deadline) > new Date()
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-red-100 text-red-800'
-                          }`}
-                        >
-                          {new Date(job.deadline) > new Date() ? 'Active' : 'Expired'}
-                        </div>
-                      </div>
-                    </div>
-                  </motion.div>
+                    job={job}
+                    onEdit={handleEditJob}
+                    onDelete={handleDeleteJob}
+                    onStatusChange={handleStatusChange}
+                    onViewApplications={handleViewApplications}
+                    loading={loading}
+                  />
                 ))}
               </div>
             )}
           </motion.div>
+
+          {/* Job Applications Modal */}
+          {selectedJobId && (
+            <JobApplicationsList jobId={selectedJobId} onClose={() => setSelectedJobId(null)} />
+          )}
         </div>
       </div>
     </div>
