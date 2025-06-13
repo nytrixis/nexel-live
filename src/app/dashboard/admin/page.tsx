@@ -99,11 +99,19 @@ export default function AdminDashboard() {
       .order('created_at', { ascending: false });
 
     if (jobsData) {
-      const jobsWithCount = jobsData.map((job) => ({
-        ...job,
-        applications_count: job.job_applications?.count || 0,
-        status: job.status || 'active',
-      }));
+      const jobsWithCount = await Promise.all(
+        jobsData.map(async (job) => {
+          const { count } = await supabase
+            .from('job_applications')
+            .select('*', { count: 'exact', head: true })
+            .eq('job_id', job.id);
+          return {
+            ...job,
+            applications_count: count || 0,
+            status: job.status || 'active',
+          };
+        }),
+      );
       setJobs(jobsWithCount);
     }
   };

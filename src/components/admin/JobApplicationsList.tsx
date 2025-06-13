@@ -41,9 +41,8 @@ export default function JobApplicationsList({ jobId, onClose }: JobApplicationsL
   const fetchJobAndApplications = async () => {
     setLoading(true);
     setError('');
-
     try {
-      // Fetch job details
+      // Fetch job details (same as before)
       const { data: jobData, error: jobError } = await supabase
         .from('jobs')
         .select('id, title, location, deadline')
@@ -53,30 +52,24 @@ export default function JobApplicationsList({ jobId, onClose }: JobApplicationsL
       if (jobError) throw jobError;
       setJob(jobData);
 
-      // Fetch applications with student details
-      const { data: applicationsData, error: applicationsError } = await supabase
-        .from('job_applications')
-        .select(
-          `
-          id,
-          applied_at,
-          student:users!student_id (
-            id,
-            name,
-            email,
-            college_id
-          )
-        `,
-        )
-        .eq('job_id', jobId)
-        .order('applied_at', { ascending: false });
-
-      if (applicationsError) throw applicationsError;
-      const typedApplications = (applicationsData || []).map((app) => ({
-        ...app,
-        student: app.student[0],
-      }));
-      setApplications(typedApplications);
+      // Fetch applications via API route
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      const accessToken = session?.access_token;
+      console.log(accessToken);
+      const res = await fetch(`/api/jobs/${jobId}/applications`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      let applicationsData = await res.json();
+      if (!Array.isArray(applicationsData)) {
+        setApplications([]);
+        setError(applicationsData?.error || 'Failed to load applications');
+      } else {
+        setApplications(applicationsData);
+      }
     } catch (err: any) {
       console.error('Error fetching applications:', err);
       setError(err.message || 'Failed to load applications');
