@@ -101,7 +101,7 @@ export default function AdminDashboard() {
     if (jobsData) {
       const jobsWithCount = jobsData.map((job) => ({
         ...job,
-        applications_count: job.job_applications?.length || 0,
+        applications_count: job.job_applications?.count || 0,
         status: job.status || 'active',
       }));
       setJobs(jobsWithCount);
@@ -246,7 +246,7 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className={cn('flex w-full h-screen overflow-hidden bg-[#eaf1ef]')}>
+    <div className={cn('flex w-full h-screen overflow-x-hidden bg-[#eaf1ef]')}>
       <Sidebar open={open} setOpen={setOpen}>
         <SidebarBody className="justify-between gap-10">
           <div className="flex flex-1 flex-col overflow-x-hidden overflow-y-auto">
@@ -288,7 +288,7 @@ export default function AdminDashboard() {
 
       {/* Main Content */}
       <div className="flex flex-1 overflow-hidden">
-        <div className="flex h-full w-full flex-1 flex-col gap-2 bg-[#eaf1ef] p-4 md:p-8 overflow-y-auto">
+        <div className="flex h-full w-full flex-1 flex-col gap-2 bg-[#eaf1ef] p-4 md:p-8 overflow-y-auto overflow-x-hidden">
           {/* Header */}
           <div className="bg-white rounded-2xl shadow border border-[#dbe7e3] p-6 mb-6">
             <div className="flex items-center justify-between">

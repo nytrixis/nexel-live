@@ -21,13 +21,13 @@ export default function AuthPage() {
     <div className="min-h-screen flex bg-[#0E1012] font-inter relative overflow-hidden">
       {/* Left Side */}
       <img
-      src="/light-rays.png"
-      alt=""
-      className="absolute top-0 left-0 w-[700px] h-[400px] opacity-15 pointer-events-none select-none z-0"
-      draggable={false}
-      style={{ objectFit: 'cover' }}
-    />
-      
+        src="/light-rays.png"
+        alt=""
+        className="absolute top-0 left-0 w-[700px] h-[400px] opacity-15 pointer-events-none select-none z-0"
+        draggable={false}
+        style={{ objectFit: 'cover' }}
+      />
+
       <div className="hidden md:flex w-3/5 flex-col justify-center px-16 relative overflow-hidden">
         <div className="z-10">
           <h1 className="text-5xl font-bold text-[#E6E6E6] mb-6 tracking-tight">
@@ -55,41 +55,32 @@ export default function AuthPage() {
               '0 4px 32px 0 rgba(0,0,0,0.45), inset 0 1.5px 8px 0 #23272f, 0 1.5px 8px 0 #00E1A933',
           }}
         >
-        <div className="relative z-10">
-          <h2 className="text-2xl font-semibold text-[#E6E6E6] mb-8 text-center tracking-tight">
-            {activeTab === 'login'
-              ? 'Welcome Back'
-              : activeTab === 'signup'
-              ? 'Create Account'
-              : 'Reset Password'}
-          </h2>
-          {/* Tabs */}
-          <div className="flex mb-8 space-x-2 justify-center">
-            <TabButton
-              active={activeTab === 'login'}
-              onClick={() => setActiveTab('login')}
-            >
-              Email Account
-            </TabButton>
-            <TabButton
-              active={activeTab === 'signup'}
-              onClick={() => setActiveTab('signup')}
-            >
-              Sign Up
-            </TabButton>
-          </div>
-          {/* Forms */}
-          {activeTab === 'login' && (
-                <LoginForm
-                    onForgot={() => setActiveTab('forgot')}
-                    setActiveTab={setActiveTab}
-                />
-                )}
-          {activeTab === 'signup' && <SignupForm />}
-          {activeTab === 'forgot' && <ForgotForm onBack={() => setActiveTab('login')} />}
-          <div className="mt-8 text-center text-[#A1A1A1] text-xs">
-            Copyright © {new Date().getFullYear()} Nexel. All Rights Reserved.
-          </div>
+          <div className="relative z-10">
+            <h2 className="text-2xl font-semibold text-[#E6E6E6] mb-8 text-center tracking-tight">
+              {activeTab === 'login'
+                ? 'Welcome Back'
+                : activeTab === 'signup'
+                  ? 'Create Account'
+                  : 'Reset Password'}
+            </h2>
+            {/* Tabs */}
+            <div className="flex mb-8 space-x-2 justify-center">
+              <TabButton active={activeTab === 'login'} onClick={() => setActiveTab('login')}>
+                Email Account
+              </TabButton>
+              <TabButton active={activeTab === 'signup'} onClick={() => setActiveTab('signup')}>
+                Sign Up
+              </TabButton>
+            </div>
+            {/* Forms */}
+            {activeTab === 'login' && (
+              <LoginForm onForgot={() => setActiveTab('forgot')} setActiveTab={setActiveTab} />
+            )}
+            {activeTab === 'signup' && <SignupForm />}
+            {activeTab === 'forgot' && <ForgotForm onBack={() => setActiveTab('login')} />}
+            <div className="mt-8 text-center text-[#A1A1A1] text-xs">
+              Copyright © {new Date().getFullYear()} Nexel. All Rights Reserved.
+            </div>
           </div>
         </motion.div>
       </div>
@@ -110,9 +101,8 @@ function TabButton({
   return (
     <button
       className={`px-4 py-2 rounded-full font-semibold transition-all text-sm relative
-        ${active
-          ? 'bg-[#008060] text-white'
-          : 'bg-transparent text-[#A1A1A1] hover:text-[#00B386]'
+        ${
+          active ? 'bg-[#008060] text-white' : 'bg-transparent text-[#A1A1A1] hover:text-[#00B386]'
         }`}
       onClick={onClick}
     >
@@ -122,7 +112,13 @@ function TabButton({
 }
 
 // Login Form
-function LoginForm({ onForgot, setActiveTab }: { onForgot: () => void; setActiveTab: (tab: 'login' | 'signup' | 'forgot') => void }) {
+function LoginForm({
+  onForgot,
+  setActiveTab,
+}: {
+  onForgot: () => void;
+  setActiveTab: (tab: 'login' | 'signup' | 'forgot') => void;
+}) {
   const [form, setForm] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -165,19 +161,43 @@ function LoginForm({ onForgot, setActiveTab }: { onForgot: () => void; setActive
     }
   };
 
-
   return (
     <form className="space-y-7" onSubmit={handleSubmit}>
-      <FloatingInput label="Email" type="email" name="email" value={form.email} onChange={handleChange} autoComplete="email" icon={<FiMail />} placeholder=" " />
-      <FloatingInput label="Password" type="password" name="password" value={form.password} onChange={handleChange} autoComplete="current-password" icon={<FiLock />} placeholder=" " />
+      <FloatingInput
+        label="Email"
+        type="email"
+        name="email"
+        value={form.email}
+        onChange={handleChange}
+        autoComplete="email"
+        icon={<FiMail />}
+        placeholder=" "
+      />
+      <FloatingInput
+        label="Password"
+        type="password"
+        name="password"
+        value={form.password}
+        onChange={handleChange}
+        autoComplete="current-password"
+        icon={<FiLock />}
+        placeholder=" "
+      />
       <div className="flex justify-between items-center">
-        <button type="button" className="text-[#3AF0C0] text-xs hover:underline" onClick={onForgot}>Forgot Password?</button>
+        <button type="button" className="text-[#3AF0C0] text-xs hover:underline" onClick={onForgot}>
+          Forgot Password?
+        </button>
       </div>
       <AccentButton>{loading ? 'Signing In...' : 'Sign In Now'}</AccentButton>
       {error && <div className="text-red-500 text-xs text-center">{error}</div>}
       <div className="text-center text-[#A1A1A1] text-xs mt-2">
         Don&apos;t have access yet?{' '}
-        <span className="text-[#3AF0C0] hover:underline cursor-pointer" onClick={() => setActiveTab('signup')}>Sign Up</span>
+        <span
+          className="text-[#3AF0C0] hover:underline cursor-pointer"
+          onClick={() => setActiveTab('signup')}
+        >
+          Sign Up
+        </span>
       </div>
     </form>
   );
@@ -217,8 +237,8 @@ function SignupForm() {
       email: form.email,
       password: form.password,
       role: role!,
-      college_id: role === 'student' ? college : null,
-});
+      college_id: college,
+    });
 
     setLoading(false);
 
@@ -234,38 +254,78 @@ function SignupForm() {
 
   return (
     <form className="space-y-7" onSubmit={handleSubmit}>
-      <FloatingInput label="Name" type="text" name="name" value={form.name} onChange={handleChange} autoComplete="name" placeholder=" " />
-      <FloatingInput label="Email" type="email" name="email" value={form.email} onChange={handleChange} autoComplete="email" icon={<FiMail />} placeholder=" " />
-      <FloatingInput label="Password" type="password" name="password" value={form.password} onChange={handleChange} autoComplete="new-password" icon={<FiLock />} placeholder=" " />
+      <FloatingInput
+        label="Name"
+        type="text"
+        name="name"
+        value={form.name}
+        onChange={handleChange}
+        autoComplete="name"
+        placeholder=" "
+      />
+      <FloatingInput
+        label="Email"
+        type="email"
+        name="email"
+        value={form.email}
+        onChange={handleChange}
+        autoComplete="email"
+        icon={<FiMail />}
+        placeholder=" "
+      />
+      <FloatingInput
+        label="Password"
+        type="password"
+        name="password"
+        value={form.password}
+        onChange={handleChange}
+        autoComplete="new-password"
+        icon={<FiLock />}
+        placeholder=" "
+      />
 
       {/* Role Selector */}
       <div>
         <label className="block text-xs font-medium text-[#A1A1A1] mb-2">Role</label>
         <div className="flex gap-4">
-          <RoleCard icon={<FiUser size={20} />} label="Student" active={role === 'student'} onClick={() => setRole('student')} />
-          <RoleCard icon={<FiShield size={20} />} label="Admin" active={role === 'admin'} onClick={() => setRole('admin')} />
+          <RoleCard
+            icon={<FiUser size={20} />}
+            label="Student"
+            active={role === 'student'}
+            onClick={() => setRole('student')}
+          />
+          <RoleCard
+            icon={<FiShield size={20} />}
+            label="Admin"
+            active={role === 'admin'}
+            onClick={() => setRole('admin')}
+          />
         </div>
       </div>
 
       {/* College Selector */}
-      {role === 'student' && (
+      {role && (
         <div>
-            <label className="block text-xs font-medium text-[#A1A1A1] mb-2">College</label>
-            <div className="relative">
+          <label className="block text-xs font-medium text-[#A1A1A1] mb-2">College</label>
+          <div className="relative">
             <select
-                name="college_id"
-                value={college}
-                onChange={e => setCollege(e.target.value)}
-                required
-                className="w-full px-4 py-3 rounded-xl bg-[#181B1E]/70 border border-[#2C2F32] text-[#E6E6E6] focus:ring-2 focus:ring-[#00E1A9] focus:border-[#00E1A9] transition-all shadow-inner appearance-none"
+              name="college_id"
+              value={college}
+              onChange={(e) => setCollege(e.target.value)}
+              required
+              className="w-full px-4 py-3 rounded-xl bg-[#181B1E]/70 border border-[#2C2F32] text-[#E6E6E6] focus:ring-2 focus:ring-[#00E1A9] focus:border-[#00E1A9] transition-all shadow-inner appearance-none"
             >
-                <option value="">Select your college</option>
-                {colleges.map(col => (
-                <option key={col.id} value={col.id}>{col.name}</option>
-                ))}
+              <option value="">Select your college</option>
+              {colleges.map((col) => (
+                <option key={col.id} value={col.id}>
+                  {col.name}
+                </option>
+              ))}
             </select>
-            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[#A1A1A1] pointer-events-none">&#9662;</span>
-            </div>
+            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[#A1A1A1] pointer-events-none">
+              &#9662;
+            </span>
+          </div>
         </div>
       )}
 
@@ -292,18 +352,19 @@ function RoleCard({
       type="button"
       onClick={onClick}
       className={`flex flex-col items-center justify-center px-6 py-3 rounded-xl border transition-all
-        ${active
-          ? 'border-[#00E1A9] bg-[#181B1E]/80 shadow-[0_0_16px_0_#00E1A955]'
-          : 'border-[#2C2F32] bg-[#181B1E]/60 hover:border-[#00E1A9]/60'
+        ${
+          active
+            ? 'border-[#00E1A9] bg-[#181B1E]/80 shadow-[0_0_16px_0_#00E1A955]'
+            : 'border-[#2C2F32] bg-[#181B1E]/60 hover:border-[#00E1A9]/60'
         }`}
       style={{
-        boxShadow: active
-          ? '0 0 16px 0 #00E1A955, 0 1.5px 8px 0 #00E1A933'
-          : undefined,
+        boxShadow: active ? '0 0 16px 0 #00E1A955, 0 1.5px 8px 0 #00E1A933' : undefined,
       }}
     >
       <span className={`mb-1 ${active ? 'text-[#00E1A9]' : 'text-[#A1A1A1]'}`}>{icon}</span>
-      <span className={`text-sm font-semibold ${active ? 'text-[#00E1A9]' : 'text-[#A1A1A1]'}`}>{label}</span>
+      <span className={`text-sm font-semibold ${active ? 'text-[#00E1A9]' : 'text-[#A1A1A1]'}`}>
+        {label}
+      </span>
     </button>
   );
 }
@@ -330,12 +391,23 @@ function ForgotForm({ onBack }: { onBack: () => void }) {
 
   return (
     <form className="space-y-7" onSubmit={handleSubmit}>
-      <FloatingInput label="Email" type="email" name="email" value={email} onChange={e => setEmail(e.target.value)} autoComplete="email" icon={<FiMail />} placeholder=" " />
+      <FloatingInput
+        label="Email"
+        type="email"
+        name="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        autoComplete="email"
+        icon={<FiMail />}
+        placeholder=" "
+      />
       <AccentButton>{loading ? 'Sending...' : 'Send Reset Link'}</AccentButton>
       {message && <div className="text-green-400 text-xs text-center">{message}</div>}
       {error && <div className="text-red-500 text-xs text-center">{error}</div>}
       <div className="text-center text-[#A1A1A1] text-xs mt-2">
-        <span className="text-[#3AF0C0] hover:underline cursor-pointer" onClick={onBack}>Back to Login</span>
+        <span className="text-[#3AF0C0] hover:underline cursor-pointer" onClick={onBack}>
+          Back to Login
+        </span>
       </div>
     </form>
   );
@@ -388,9 +460,10 @@ function FloatingInput({
         />
         <label
           className={`absolute pointer-events-none transition-all duration-200 text-[15px] font-medium
-            ${focus || value
-              ? 'text-[#00E1A9] -top-3 left-4 text-xs bg-[#181B1E] px-2 opacity-100'
-              : 'text-[#A1A1A1] top-1/2 left-10 -translate-y-1/2 opacity-60'
+            ${
+              focus || value
+                ? 'text-[#00E1A9] -top-3 left-4 text-xs bg-[#181B1E] px-2 opacity-100'
+                : 'text-[#A1A1A1] top-1/2 left-10 -translate-y-1/2 opacity-60'
             }
           `}
         >
