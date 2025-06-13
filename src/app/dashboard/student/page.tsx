@@ -11,8 +11,11 @@ import {
   IconHistory,
   IconLogout,
   IconDashboard,
+  IconUser,
 } from '@tabler/icons-react';
 import { cn } from '@/lib/utils';
+import JobSearch from '@/components/student/JobSearch';
+import ApplicationHistory from '@/components/student/ApplicationHistory';
 
 interface Job {
   id: string;
@@ -21,7 +24,8 @@ interface Job {
   location: string;
   deadline: string;
   created_at: string;
-  has_applied?: boolean;
+  college_id: string;
+  posted_by: string;
 }
 
 interface User {
@@ -32,14 +36,25 @@ interface User {
   college_id: string;
 }
 
+interface JobApplication {
+  id: string;
+  job_id: string;
+  student_id: string;
+  applied_at: string;
+}
+
 export default function StudentDashboard() {
   const [user, setUser] = useState<User | null>(null);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [appliedJobs, setAppliedJobs] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
   const [activeView, setActiveView] = useState('dashboard');
   const [open, setOpen] = useState(false);
+  const [stats, setStats] = useState({
+    totalApplications: 0,
+    activeJobs: 0,
+    recentApplications: 0,
+  });
   const router = useRouter();
 
   useEffect(() => {
@@ -50,6 +65,7 @@ export default function StudentDashboard() {
     if (user) {
       fetchJobs();
       fetchAppliedJobs();
+      fetchStats();
     }
   }, [user]);
 
@@ -84,6 +100,7 @@ export default function StudentDashboard() {
       .from('jobs')
       .select('*')
       .eq('college_id', user.college_id)
+      .gte('deadline', new Date().toISOString().split('T')[0])
       .order('created_at', { ascending: false });
 
     if (jobsData) {
@@ -104,18 +121,63 @@ export default function StudentDashboard() {
     }
   };
 
+  const fetchStats = async () => {
+    if (!user?.id || !user?.college_id) return;
+
+    try {
+      // Get total applications by this student
+      const { data: applications } = await supabase
+        .from('job_applications')
+        .select('*')
+        .eq('student_id', user.id);
+
+      // Get active jobs in college
+      const { data: activeJobsData } = await supabase
+        .from('jobs')
+        .select('id')
+        .eq('college_id', user.college_id)
+        .gte('deadline', new Date().toISOString().split('T')[0]);
+
+      // Get recent applications (last 7 days)
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+      const { data: recentApps } = await supabase
+        .from('job_applications')
+        .select('*')
+        .eq('student_id', user.id)
+        .gte('applied_at', sevenDaysAgo.toISOString());
+
+      setStats({
+        totalApplications: applications?.length || 0,
+        activeJobs: activeJobsData?.length || 0,
+        recentApplications: recentApps?.length || 0,
+      });
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+    }
+  };
+
   const handleApply = async (jobId: string) => {
     if (!user?.id) return;
 
-    const { error } = await supabase.from('job_applications').insert([
-      {
-        job_id: jobId,
-        student_id: user.id,
-      },
-    ]);
+    try {
+      const { error } = await supabase.from('job_applications').insert([
+        {
+          job_id: jobId,
+          student_id: user.id,
+        },
+      ]);
 
-    if (!error) {
-      setAppliedJobs([...appliedJobs, jobId]);
+      if (!error) {
+        setAppliedJobs([...appliedJobs, jobId]);
+        fetchStats(); // Refresh stats
+      } else {
+        alert('Failed to apply for job. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error applying for job:', error);
+      alert('Failed to apply for job. Please try again.');
     }
   };
 
@@ -123,16 +185,6 @@ export default function StudentDashboard() {
     await supabase.auth.signOut();
     router.push('/');
   };
-
-  const filteredJobs = jobs.filter(
-    (job) =>
-      job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      job.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      job.location.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
-
-  const activeJobs = filteredJobs.filter((job) => new Date(job.deadline) > new Date());
-  const expiredJobs = filteredJobs.filter((job) => new Date(job.deadline) <= new Date());
 
   const links = [
     {
@@ -146,7 +198,7 @@ export default function StudentDashboard() {
       icon: <IconBriefcase className="h-5 w-5 shrink-0 text-[#1e7d6b]" />,
     },
     {
-      label: 'Search',
+      label: 'Search Jobs',
       href: '#',
       icon: <IconSearch className="h-5 w-5 shrink-0 text-[#1e7d6b]" />,
     },
@@ -154,6 +206,11 @@ export default function StudentDashboard() {
       label: 'My Applications',
       href: '#',
       icon: <IconHistory className="h-5 w-5 shrink-0 text-[#1e7d6b]" />,
+    },
+    {
+      label: 'Profile',
+      href: '#',
+      icon: <IconUser className="h-5 w-5 shrink-0 text-[#1e7d6b]" />,
     },
     {
       label: 'Logout',
@@ -206,9 +263,10 @@ export default function StudentDashboard() {
                   link={link}
                   onClick={() => {
                     if (link.label === 'Dashboard') setActiveView('dashboard');
-                    if (link.label === 'Browse Jobs') setActiveView('jobs');
-                    if (link.label === 'Search') setActiveView('search');
+                    if (link.label === 'Browse Jobs') setActiveView('browse');
+                    if (link.label === 'Search Jobs') setActiveView('search');
                     if (link.label === 'My Applications') setActiveView('applications');
+                    if (link.label === 'Profile') setActiveView('profile');
                     if (link.label === 'Logout') handleLogout();
                   }}
                 />
@@ -244,213 +302,88 @@ export default function StudentDashboard() {
             </div>
           </div>
 
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          {/* Stats Cards - Show on Dashboard and Browse */}
+          {(activeView === 'dashboard' || activeView === 'browse') && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <motion.div
+                className="bg-white rounded-2xl shadow border border-[#dbe7e3] p-6"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                <div className="text-3xl font-bold text-[#1e7d6b] mb-2">{stats.activeJobs}</div>
+                <div className="text-[#222] font-medium">Available Jobs</div>
+              </motion.div>
+              <motion.div
+                className="bg-white rounded-2xl shadow border border-[#dbe7e3] p-6"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+              >
+                <div className="text-3xl font-bold text-[#1e7d6b] mb-2">
+                  {stats.totalApplications}
+                </div>
+                <div className="text-[#222] font-medium">Total Applications</div>
+              </motion.div>
+              <motion.div
+                className="bg-white rounded-2xl shadow border border-[#dbe7e3] p-6"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
+                <div className="text-3xl font-bold text-[#1e7d6b] mb-2">
+                  {stats.recentApplications}
+                </div>
+                <div className="text-[#222] font-medium">Recent Applications</div>
+              </motion.div>
+            </div>
+          )}
+
+          {/* Content based on active view */}
+          {(activeView === 'dashboard' || activeView === 'browse') && (
+            <JobSearch
+              jobs={jobs}
+              appliedJobs={appliedJobs}
+              onApply={handleApply}
+              loading={loading}
+            />
+          )}
+
+          {activeView === 'search' && (
+            <JobSearch
+              jobs={jobs}
+              appliedJobs={appliedJobs}
+              onApply={handleApply}
+              loading={loading}
+              showFilters={true}
+            />
+          )}
+
+          {activeView === 'applications' && user && <ApplicationHistory userId={user.id} />}
+
+          {activeView === 'profile' && (
             <motion.div
-              className="bg-white rounded-2xl shadow border border-[#dbe7e3] p-6"
+              className="bg-white rounded-2xl shadow border border-[#dbe7e3] p-8"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <div className="text-3xl font-bold text-[#1e7d6b] mb-2">{activeJobs.length}</div>
-              <div className="text-[#222] font-medium">Available Jobs</div>
-            </motion.div>
-            <motion.div
-              className="bg-white rounded-2xl shadow border border-[#dbe7e3] p-6"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-            >
-              <div className="text-3xl font-bold text-[#1e7d6b] mb-2">{appliedJobs.length}</div>
-              <div className="text-[#222] font-medium">Applications Sent</div>
-            </motion.div>
-            <motion.div
-              className="bg-white rounded-2xl shadow border border-[#dbe7e3] p-6"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
-              <div className="text-3xl font-bold text-[#1e7d6b] mb-2">{jobs.length}</div>
-              <div className="text-[#222] font-medium">Total Jobs</div>
-            </motion.div>
-          </div>
-
-          {/* Search Bar */}
-          {(activeView === 'search' || activeView === 'jobs' || activeView === 'dashboard') && (
-            <motion.div
-              className="mb-8"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-            >
-              <div className="bg-white rounded-2xl shadow border border-[#dbe7e3] p-6">
-                <div className="flex items-center bg-[#eaf1ef] rounded-full px-6 py-3">
-                  <IconSearch className="w-5 h-5 text-[#b7c7c2] mr-3" />
-                  <input
-                    type="text"
-                    placeholder="Search jobs by title, description, or location..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="bg-transparent outline-none border-none w-full text-[#222] text-lg"
-                  />
+              <h2 className="text-2xl font-bold text-[#222] mb-4">Profile</h2>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-[#666] mb-1">Name</label>
+                  <div className="text-[#222] font-medium">{user?.name}</div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-[#666] mb-1">Email</label>
+                  <div className="text-[#222] font-medium">{user?.email}</div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-[#666] mb-1">Role</label>
+                  <div className="text-[#222] font-medium capitalize">{user?.role}</div>
                 </div>
               </div>
             </motion.div>
-          )}
-
-          {/* Content based on active view */}
-          {activeView === 'applications' ? (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-            >
-              <h2 className="text-2xl font-bold text-[#222] mb-6">My Applications</h2>
-              {appliedJobs.length === 0 ? (
-                <div className="bg-white rounded-2xl shadow border border-[#dbe7e3] p-8 text-center">
-                  <div className="text-[#222] text-lg">No applications yet</div>
-                  <p className="text-[#666] mt-2">Start applying to jobs to see them here</p>
-                </div>
-              ) : (
-                <div className="grid gap-6">
-                  {jobs
-                    .filter((job) => appliedJobs.includes(job.id))
-                    .map((job, index) => (
-                      <motion.div
-                        key={job.id}
-                        className="bg-white rounded-2xl shadow border border-[#dbe7e3] p-6"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5, delay: index * 0.1 }}
-                      >
-                        <div className="flex justify-between items-start">
-                          <div className="flex-1">
-                            <h3 className="text-xl font-bold text-[#222] mb-2">{job.title}</h3>
-                            <p className="text-[#222] mb-4 line-clamp-3">{job.description}</p>
-                            <div className="flex gap-4 text-sm text-[#1e7d6b] mb-4">
-                              <span>📍 {job.location}</span>
-                              <span>
-                                📅 Deadline: {new Date(job.deadline).toLocaleDateString()}
-                              </span>
-                              <span>
-                                🕒 Applied: {new Date(job.created_at).toLocaleDateString()}
-                              </span>
-                            </div>
-                          </div>
-                          <div className="ml-6">
-                            <div className="px-6 py-3 rounded-full bg-green-100 text-green-800 font-semibold">
-                              Applied ✓
-                            </div>
-                          </div>
-                        </div>
-                      </motion.div>
-                    ))}
-                </div>
-              )}
-            </motion.div>
-          ) : (
-            <>
-              {/* Active Jobs */}
-              <motion.div
-                className="mb-8"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.4 }}
-              >
-                <h2 className="text-2xl font-bold text-[#222] mb-6">Available Jobs</h2>
-                {activeJobs.length === 0 ? (
-                  <div className="bg-white rounded-2xl shadow border border-[#dbe7e3] p-8 text-center">
-                    <div className="text-[#222] text-lg">No active jobs available</div>
-                    <p className="text-[#666] mt-2">Check back later for new opportunities</p>
-                  </div>
-                ) : (
-                  <div className="grid gap-6">
-                    {activeJobs.map((job, index) => (
-                      <motion.div
-                        key={job.id}
-                        className="bg-white rounded-2xl shadow border border-[#dbe7e3] p-6"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5, delay: index * 0.1 }}
-                      >
-                        <div className="flex justify-between items-start">
-                          <div className="flex-1">
-                            <h3 className="text-xl font-bold text-[#222] mb-2">{job.title}</h3>
-                            <p className="text-[#222] mb-4 line-clamp-3">{job.description}</p>
-                            <div className="flex gap-4 text-sm text-[#1e7d6b] mb-4">
-                              <span>📍 {job.location}</span>
-                              <span>
-                                📅 Deadline: {new Date(job.deadline).toLocaleDateString()}
-                              </span>
-                              <span>
-                                🕒 Posted: {new Date(job.created_at).toLocaleDateString()}
-                              </span>
-                            </div>
-                          </div>
-                          <div className="ml-6">
-                            {appliedJobs.includes(job.id) ? (
-                              <div className="px-6 py-3 rounded-full bg-green-100 text-green-800 font-semibold">
-                                Applied ✓
-                              </div>
-                            ) : (
-                              <button
-                                onClick={() => handleApply(job.id)}
-                                className="px-6 py-3 rounded-full bg-[#1e7d6b] text-white font-semibold shadow hover:scale-105 transition-all duration-200"
-                              >
-                                Apply Now
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
-                )}
-              </motion.div>
-
-              {/* Expired Jobs */}
-              {expiredJobs.length > 0 && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.5 }}
-                >
-                  <h2 className="text-2xl font-bold text-[#222] mb-6">Expired Jobs</h2>
-                  <div className="grid gap-6">
-                    {expiredJobs.map((job, index) => (
-                      <motion.div
-                        key={job.id}
-                        className="bg-white/50 rounded-2xl shadow border border-[#dbe7e3] p-6 opacity-60"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 0.6, y: 0 }}
-                        transition={{ duration: 0.5, delay: index * 0.1 }}
-                      >
-                        <div className="flex justify-between items-start">
-                          <div className="flex-1">
-                            <h3 className="text-xl font-bold text-[#222] mb-2">{job.title}</h3>
-                            <p className="text-[#222] mb-4 line-clamp-3">{job.description}</p>
-                            <div className="flex gap-4 text-sm text-[#666] mb-4">
-                              <span>📍 {job.location}</span>
-                              <span>
-                                📅 Deadline: {new Date(job.deadline).toLocaleDateString()}
-                              </span>
-                              <span>
-                                🕒 Posted: {new Date(job.created_at).toLocaleDateString()}
-                              </span>
-                            </div>
-                          </div>
-                          <div className="ml-6">
-                            <div className="px-6 py-3 rounded-full bg-red-100 text-red-800 font-semibold">
-                              Expired
-                            </div>
-                          </div>
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-            </>
           )}
         </div>
       </div>

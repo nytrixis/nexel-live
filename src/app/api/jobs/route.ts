@@ -2,7 +2,28 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabaseClient';
 
 export async function GET(req: NextRequest) {
-  const collegeId = req.nextUrl.searchParams.get('college_id');
+  // Get session
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  // Get user and role
+  const { data: user } = await supabase
+    .from('users')
+    .select('id, role, college_id')
+    .eq('id', session.user.id)
+    .single();
+
+  if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
+
+  let collegeId = req.nextUrl.searchParams.get('college_id');
+
+  // If student, force their own college_id
+  if (user.role === 'student') {
+    collegeId = user.college_id;
+  }
+
   let query = supabase
     .from('jobs')
     .select('*, job_applications(count), colleges(name), users(name)')
@@ -13,11 +34,11 @@ export async function GET(req: NextRequest) {
   const { data, error } = await query;
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  // Flatten applications_count
+  // Fix applications_count
   const jobs =
     data?.map((job) => ({
       ...job,
-      applications_count: job.job_applications?.length ?? 0,
+      applications_count: job.job_applications?.count ?? 0,
     })) ?? [];
 
   return NextResponse.json(jobs);
