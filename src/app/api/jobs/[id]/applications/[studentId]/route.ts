@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabaseClient';
 
 export async function GET(req: NextRequest, context: { params: { studentId: string } }) {
-  const { studentId } = (await context).params;
+  const contextResolved = await context;
+  const { studentId } = contextResolved.params;
 
   // Get the current session
   const {
