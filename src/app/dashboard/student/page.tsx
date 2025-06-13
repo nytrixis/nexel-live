@@ -36,13 +36,6 @@ interface User {
   college_id: string;
 }
 
-interface JobApplication {
-  id: string;
-  job_id: string;
-  student_id: string;
-  applied_at: string;
-}
-
 export default function StudentDashboard() {
   const [user, setUser] = useState<User | null>(null);
   const [jobs, setJobs] = useState<Job[]>([]);

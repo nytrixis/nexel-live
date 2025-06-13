@@ -256,8 +256,8 @@ export default function JobCard({
               </div>
               <h3 className="text-lg font-bold text-[#222] mb-2">Delete Job</h3>
               <p className="text-[#666] mb-6">
-                Are you sure you want to delete "{job.title}"? This action cannot be undone and will
-                also delete all applications for this job.
+                Are you sure you want to delete &quot;{job.title}&quot;? This action cannot be
+                undone and will also delete all applications for this job.
               </p>
               <div className="flex gap-3">
                 <button

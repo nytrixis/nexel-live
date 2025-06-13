@@ -7,13 +7,6 @@ import { MdVerifiedUser, MdWorkspacePremium } from 'react-icons/md';
 import { MdSupportAgent } from 'react-icons/md';
 import { MdSecurity } from 'react-icons/md';
 
-const tags = [
-  '3D ARTIST',
-  'Video Explainer',
-  'Graphic Design',
-  'Digital Marketing',
-];
-
 export default function LandingPage() {
   const [trustedEmployers, setTrustedEmployers] = useState<number | null>(null);
   const [recentJob, setRecentJob] = useState<{
@@ -26,14 +19,14 @@ export default function LandingPage() {
   useEffect(() => {
     // Fetch trusted employers (admins)
     fetch('/api/admin-count')
-      .then(res => res.json())
-      .then(data => setTrustedEmployers(data.count))
+      .then((res) => res.json())
+      .then((data) => setTrustedEmployers(data.count))
       .catch(() => setTrustedEmployers(null));
 
     // Fetch most recent job posting
     fetch('/api/recent-job')
-      .then(res => res.json())
-      .then(data => setRecentJob(data))
+      .then((res) => res.json())
+      .then((data) => setRecentJob(data))
       .catch(() => setRecentJob(null));
   }, []);
   return (
@@ -60,10 +53,30 @@ export default function LandingPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.2, ease: 'easeOut' }}
           >
-            <a href="/dashboard/student" className="hover:text-[#1e7d6b] transition cursor-pointer inline-block">For Students</a>
-            <a href="/dashboard/admin" className="hover:text-[#1e7d6b] transition cursor-pointer inline-block">For Admins</a>
-            <a href="/about" className="hover:text-[#1e7d6b] transition cursor-pointer inline-block">About</a>
-            <a href="/solutions" className="hover:text-[#1e7d6b] transition cursor-pointer inline-block">Solutions</a>
+            <a
+              href="/dashboard/student"
+              className="hover:text-[#1e7d6b] transition cursor-pointer inline-block"
+            >
+              For Students
+            </a>
+            <a
+              href="/dashboard/admin"
+              className="hover:text-[#1e7d6b] transition cursor-pointer inline-block"
+            >
+              For Admins
+            </a>
+            <a
+              href="/about"
+              className="hover:text-[#1e7d6b] transition cursor-pointer inline-block"
+            >
+              About
+            </a>
+            <a
+              href="/solutions"
+              className="hover:text-[#1e7d6b] transition cursor-pointer inline-block"
+            >
+              Solutions
+            </a>
           </motion.nav>
           <motion.div
             className="flex gap-3"
@@ -129,16 +142,32 @@ export default function LandingPage() {
             transition={{ duration: 0.7, delay: 0.1, ease: 'easeOut' }}
             viewport={{ once: true }}
           >
-            <svg className="w-5 h-5 text-[#b7c7c2] mr-3" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="2"/>
-              <line x1="21" y1="21" x2="16.65" y2="16.65" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+            <svg
+              className="w-5 h-5 text-[#b7c7c2] mr-3"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+            >
+              <circle cx="11" cy="11" r="8" stroke="currentColor" strokeWidth="2" />
+              <line
+                x1="21"
+                y1="21"
+                x2="16.65"
+                y2="16.65"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
             </svg>
             <input
               type="text"
               placeholder="Search for jobs, companies, or skills..."
               className="bg-transparent outline-none border-none w-full text-[#222] text-lg"
             />
-            <button className="ml-3 px-4 py-2 bg-[#1e7d6b] text-white rounded-full font-semibold text-sm">Search</button>
+            <button className="ml-3 px-4 py-2 bg-[#1e7d6b] text-white rounded-full font-semibold text-sm">
+              Search
+            </button>
           </motion.div>
           <motion.div
             className="flex gap-2 flex-wrap mb-2"
@@ -148,14 +177,16 @@ export default function LandingPage() {
             viewport={{ once: true }}
           >
             <span className="text-[#222] text-sm">Popular searches:</span>
-            {['Frontend Developer', 'Data Analyst', 'UI/UX Designer', 'Marketing', 'Remote'].map(tag => (
-              <span
-                key={tag}
-                className="px-3 py-1 rounded-full bg-[#eaf1ef] border border-[#dbe7e3] text-[#1e7d6b] font-medium text-xs cursor-pointer hover:bg-[#dbe7e3] transition"
-              >
-                {tag}
-              </span>
-            ))}
+            {['Frontend Developer', 'Data Analyst', 'UI/UX Designer', 'Marketing', 'Remote'].map(
+              (tag) => (
+                <span
+                  key={tag}
+                  className="px-3 py-1 rounded-full bg-[#eaf1ef] border border-[#dbe7e3] text-[#1e7d6b] font-medium text-xs cursor-pointer hover:bg-[#dbe7e3] transition"
+                >
+                  {tag}
+                </span>
+              ),
+            )}
           </motion.div>
           <motion.p
             className="text-[#222] text-base font-medium mb-4 max-w-lg"
@@ -164,7 +195,8 @@ export default function LandingPage() {
             transition={{ duration: 0.7, delay: 0.3, ease: 'easeOut' }}
             viewport={{ once: true }}
           >
-            Discover your next opportunity. Search and apply to jobs from top companies, or find the perfect candidate for your team—all in one place.
+            Discover your next opportunity. Search and apply to jobs from top companies, or find the
+            perfect candidate for your team—all in one place.
           </motion.p>
           {/* Trusted Employers Card */}
           <motion.div
@@ -179,9 +211,18 @@ export default function LandingPage() {
             viewport={{ once: true }}
           >
             <div className="flex -space-x-3">
-              {[1,2,3,4,5].map(i => (
-                <div key={i} className="w-10 h-10 rounded-full border-2 border-white bg-[#b7c7c2] flex items-center justify-center overflow-hidden">
-                  <Image src={`/images/user${i}.png`} alt="" width={40} height={40} className="object-cover" />
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div
+                  key={i}
+                  className="w-10 h-10 rounded-full border-2 border-white bg-[#b7c7c2] flex items-center justify-center overflow-hidden"
+                >
+                  <Image
+                    src={`/images/user${i}.png`}
+                    alt=""
+                    width={40}
+                    height={40}
+                    className="object-cover"
+                  />
                 </div>
               ))}
             </div>
@@ -228,9 +269,21 @@ export default function LandingPage() {
             transition={{ duration: 0.7, delay: 0.5, ease: 'easeOut' }}
           >
             <div className="w-10 h-10 rounded-full bg-[#eaf1ef] flex items-center justify-center text-[#1e7d6b] font-bold text-lg">
-              <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
-                <path d="M12 16v-4M12 8h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+              <svg
+                width="24"
+                height="24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              >
+                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
+                <path
+                  d="M12 16v-4M12 8h.01"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
               </svg>
             </div>
             <div>
@@ -241,7 +294,9 @@ export default function LandingPage() {
                 {recentJob?.title ? `Hiring: ${recentJob.title}` : 'Hiring: React Developer'}
               </div>
               <div className="text-[#fff] text-s mt-1">
-                {recentJob?.applicants !== undefined ? `${recentJob.applicants} applicants` : '45 applicants'}
+                {recentJob?.applicants !== undefined
+                  ? `${recentJob.applicants} applicants`
+                  : '45 applicants'}
               </div>
               <div className="text-[#fff] text-xs">
                 {recentJob?.closesIn ? `Closes in ${recentJob.closesIn}` : 'Closes in 3 days'}
@@ -253,7 +308,9 @@ export default function LandingPage() {
 
       {/* Popular Job Categories */}
       <section className="w-full max-w-7xl mx-auto px-4 md:px-0 mt-12">
-        <h2 className="text-3xl md:text-4xl font-extrabold text-[#222] mb-6 tracking-tight">POPULAR JOB CATEGORIES</h2>
+        <h2 className="text-3xl md:text-4xl font-extrabold text-[#222] mb-6 tracking-tight">
+          POPULAR JOB CATEGORIES
+        </h2>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           {[
             {
@@ -286,17 +343,41 @@ export default function LandingPage() {
               viewport={{ once: true }}
             >
               <div className="w-full h-36 rounded-xl overflow-hidden mb-2">
-                <Image src={category.img} alt={category.title} width={300} height={144} className="object-cover w-full h-full" />
+                <Image
+                  src={category.img}
+                  alt={category.title}
+                  width={300}
+                  height={144}
+                  className="object-cover w-full h-full"
+                />
               </div>
               <div className="font-bold text-lg text-[#222]">{category.title}</div>
               <div className="flex flex-wrap gap-2">
-                {category.tags.map(tag => (
-                  <span key={tag} className="bg-[#eaf1ef] text-[#1e7d6b] px-3 py-1 rounded-full text-xs font-medium border border-[#dbe7e3]">{tag}</span>
+                {category.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="bg-[#eaf1ef] text-[#1e7d6b] px-3 py-1 rounded-full text-xs font-medium border border-[#dbe7e3]"
+                  >
+                    {tag}
+                  </span>
                 ))}
               </div>
               <button className="ml-auto mt-2 w-8 h-8 rounded-full bg-[#1e7d6b] flex items-center justify-center text-white">
-                <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <svg
+                  width="18"
+                  height="18"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M5 12h14M12 5l7 7-7 7"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
                 </svg>
               </button>
             </motion.div>
@@ -317,7 +398,9 @@ export default function LandingPage() {
             FIND OUTSTANDING TALENT.
           </h2>
           <p className="text-[#222] text-base font-medium mb-4">
-            Connect with top professionals ready to bring your projects to life. Our platform features skilled candidates across every industry, ensuring you find the perfect match for your company&apos;s needs.
+            Connect with top professionals ready to bring your projects to life. Our platform
+            features skilled candidates across every industry, ensuring you find the perfect match
+            for your company&apos;s needs.
           </p>
         </motion.div>
         <motion.div
@@ -339,7 +422,9 @@ export default function LandingPage() {
 
       {/* Why Choose Us */}
       <section className="w-full max-w-7xl mx-auto px-4 md:px-0 mt-20">
-        <h2 className="text-3xl md:text-4xl font-extrabold text-[#222] mb-6 tracking-tight">WHY CHOOSE US?</h2>
+        <h2 className="text-3xl md:text-4xl font-extrabold text-[#222] mb-6 tracking-tight">
+          WHY CHOOSE US?
+        </h2>
         <motion.div
           className="grid grid-cols-1 md:grid-cols-3 gap-8"
           initial={{ opacity: 0, y: 40 }}
@@ -348,19 +433,40 @@ export default function LandingPage() {
           viewport={{ once: true }}
         >
           <div className="bg-white rounded-2xl shadow border border-[#dbe7e3] p-6 flex flex-col items-center text-center">
-            <MdVerifiedUser size={60} className="mb-3 text-[#1e7d6b] rounded-full border-2 border-[#1e7d6b]" style={{ padding: 8, background: 'white' }} />
+            <MdVerifiedUser
+              size={60}
+              className="mb-3 text-[#1e7d6b] rounded-full border-2 border-[#1e7d6b]"
+              style={{ padding: 8, background: 'white' }}
+            />
             <div className="font-bold text-lg text-[#222] mb-2">VERIFIED EMPLOYERS</div>
-            <p className="text-[#222] text-sm">All companies and recruiters are thoroughly vetted to ensure genuine job opportunities and a safe hiring process.</p>
+            <p className="text-[#222] text-sm">
+              All companies and recruiters are thoroughly vetted to ensure genuine job opportunities
+              and a safe hiring process.
+            </p>
           </div>
           <div className="bg-white rounded-2xl shadow border border-[#dbe7e3] p-6 flex flex-col items-center text-center">
-            <MdSupportAgent size={60} className="mb-3 text-[#1e7d6b] rounded-full border-2 border-[#1e7d6b]" style={{ padding: 8, background: 'white' }} />
+            <MdSupportAgent
+              size={60}
+              className="mb-3 text-[#1e7d6b] rounded-full border-2 border-[#1e7d6b]"
+              style={{ padding: 8, background: 'white' }}
+            />
             <div className="font-bold text-lg text-[#222] mb-2">24/7 SUPPORT</div>
-            <p className="text-[#222] text-sm">Our dedicated support team is always available to help you with your job search or hiring needs.</p>
+            <p className="text-[#222] text-sm">
+              Our dedicated support team is always available to help you with your job search or
+              hiring needs.
+            </p>
           </div>
           <div className="bg-white rounded-2xl shadow border border-[#dbe7e3] p-6 flex flex-col items-center text-center">
-            <MdSecurity size={60} className="mb-3 text-[#1e7d6b] rounded-full border-2 border-[#1e7d6b]" style={{ padding: 8, background: 'white' }} />
+            <MdSecurity
+              size={60}
+              className="mb-3 text-[#1e7d6b] rounded-full border-2 border-[#1e7d6b]"
+              style={{ padding: 8, background: 'white' }}
+            />
             <div className="font-bold text-lg text-[#222] mb-2">SECURE PLATFORM</div>
-            <p className="text-[#222] text-sm">Your data and applications are protected with industry-leading security and privacy standards.</p>
+            <p className="text-[#222] text-sm">
+              Your data and applications are protected with industry-leading security and privacy
+              standards.
+            </p>
           </div>
         </motion.div>
 
@@ -407,57 +513,67 @@ export default function LandingPage() {
                 desc: 'Join a platform trusted by job seekers and employers worldwide.',
                 imgDesc: 'A group of happy professionals or a trust badge.',
               },
-            ].concat([
-              // Duplicate for seamless infinite scroll
-              {
-                img: '/images/feature-job-alerts.png',
-                title: 'Instant Job Alerts',
-                desc: 'Get notified about new jobs matching your profile instantly.',
-                imgDesc: 'A phone showing job notifications or a bell icon with job offers.',
-              },
-              {
-                img: '/images/feature-networking.png',
-                title: 'Professional Networking',
-                desc: 'Connect with top employers and industry leaders.',
-                imgDesc: 'People shaking hands or a networking event.',
-              },
-              {
-                img: '/images/feature-remote.png',
-                title: 'Remote & Hybrid Jobs',
-                desc: 'Find flexible work options that fit your lifestyle.',
-                imgDesc: 'A person working on a laptop from home or a coffee shop.',
-              },
-              {
-                img: '/images/feature-growth.png',
-                title: 'Career Growth Tools',
-                desc: 'Access resume builders, interview tips, and more.',
-                imgDesc: 'A resume, growth chart, or someone climbing stairs.',
-              },
-              {
-                img: '/images/feature-trust.png',
-                title: 'Trusted by Thousands',
-                desc: 'Join a platform trusted by job seekers and employers worldwide.',
-                imgDesc: 'A group of happy professionals or a trust badge.',
-              },
-            ]).map((feature, idx) => (
-              <div
-                key={idx}
-                className="min-w-[260px] bg-white/80 border border-[#dbe7e3] rounded-2xl shadow p-5 flex flex-col items-center text-center mx-2"
-              >
-                <div className="w-full h-40 rounded-xl overflow-hidden mb-2 flex items-center justify-center">
-                  <Image src={feature.img} alt={feature.imgDesc} width={120} height={80} className="object-cover w-full h-full" />
+            ]
+              .concat([
+                // Duplicate for seamless infinite scroll
+                {
+                  img: '/images/feature-job-alerts.png',
+                  title: 'Instant Job Alerts',
+                  desc: 'Get notified about new jobs matching your profile instantly.',
+                  imgDesc: 'A phone showing job notifications or a bell icon with job offers.',
+                },
+                {
+                  img: '/images/feature-networking.png',
+                  title: 'Professional Networking',
+                  desc: 'Connect with top employers and industry leaders.',
+                  imgDesc: 'People shaking hands or a networking event.',
+                },
+                {
+                  img: '/images/feature-remote.png',
+                  title: 'Remote & Hybrid Jobs',
+                  desc: 'Find flexible work options that fit your lifestyle.',
+                  imgDesc: 'A person working on a laptop from home or a coffee shop.',
+                },
+                {
+                  img: '/images/feature-growth.png',
+                  title: 'Career Growth Tools',
+                  desc: 'Access resume builders, interview tips, and more.',
+                  imgDesc: 'A resume, growth chart, or someone climbing stairs.',
+                },
+                {
+                  img: '/images/feature-trust.png',
+                  title: 'Trusted by Thousands',
+                  desc: 'Join a platform trusted by job seekers and employers worldwide.',
+                  imgDesc: 'A group of happy professionals or a trust badge.',
+                },
+              ])
+              .map((feature, idx) => (
+                <div
+                  key={idx}
+                  className="min-w-[260px] bg-white/80 border border-[#dbe7e3] rounded-2xl shadow p-5 flex flex-col items-center text-center mx-2"
+                >
+                  <div className="w-full h-40 rounded-xl overflow-hidden mb-2 flex items-center justify-center">
+                    <Image
+                      src={feature.img}
+                      alt={feature.imgDesc}
+                      width={120}
+                      height={80}
+                      className="object-cover w-full h-full"
+                    />
+                  </div>
+                  <div className="font-bold text-[#1e7d6b] mb-1">{feature.title}</div>
+                  <div className="text-xs text-[#222]">{feature.desc}</div>
                 </div>
-                <div className="font-bold text-[#1e7d6b] mb-1">{feature.title}</div>
-                <div className="text-xs text-[#222]">{feature.desc}</div>
-              </div>
-            ))}
+              ))}
           </motion.div>
         </div>
       </section>
 
       {/* What Our Customers Say */}
       <section className="w-full max-w-7xl mx-auto px-4 md:px-0 mt-20">
-        <h2 className="text-3xl md:text-4xl font-extrabold text-[#222] mb-6 tracking-tight">WHAT OUR CUSTOMERS SAY</h2>
+        <h2 className="text-3xl md:text-4xl font-extrabold text-[#222] mb-6 tracking-tight">
+          WHAT OUR CUSTOMERS SAY
+        </h2>
         <motion.div
           className="bg-[#eaf1ef] rounded-2xl p-8 flex flex-col md:flex-row items-center gap-8"
           initial={{ opacity: 0, y: 40 }}
@@ -467,10 +583,18 @@ export default function LandingPage() {
         >
           <div className="flex-1 flex flex-col gap-4">
             <p className="text-[#222] text-base font-medium">
-              "We found our lead developer through this portal and the process was seamless. The platform made it easy to connect, communicate, and hire top talent. Highly recommended for any company looking to grow their team efficiently."
+              &quot;We found our lead developer through this portal and the process was seamless.
+              The platform made it easy to connect, communicate, and hire top talent. Highly
+              recommended for any company looking to grow their team efficiently.&quot;
             </p>
             <div className="flex items-center gap-3">
-              <Image src="/images/user-review-job.png" alt="Customer" width={48} height={48} className="rounded-full object-cover" />
+              <Image
+                src="/images/user-review-job.png"
+                alt="Customer"
+                width={48}
+                height={48}
+                className="rounded-full object-cover"
+              />
               <div>
                 <div className="font-bold text-[#222]">Alicia Gomez</div>
                 <div className="text-xs text-[#1e7d6b]">HR Manager, TechNova</div>
@@ -478,7 +602,11 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="flex-1 flex flex-col items-center">
-            <MdWorkspacePremium size={60} className="mb-3 text-[#1e7d6b] rounded-full border-2 border-[#1e7d6b] bg-white" style={{ padding: 8 }} />
+            <MdWorkspacePremium
+              size={60}
+              className="mb-3 text-[#1e7d6b] rounded-full border-2 border-[#1e7d6b] bg-white"
+              style={{ padding: 8 }}
+            />
             <div className="font-bold text-lg text-[#222] mb-2">TOP TALENT GUARANTEE</div>
           </div>
         </motion.div>
@@ -529,9 +657,13 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="flex-1 flex flex-col gap-4">
-            <h2 className="text-2xl md:text-3xl font-extrabold text-[#222]">EXPERIENCED PROFESSIONALS</h2>
+            <h2 className="text-2xl md:text-3xl font-extrabold text-[#222]">
+              EXPERIENCED PROFESSIONALS
+            </h2>
             <p className="text-[#222] text-base font-medium">
-              Our platform connects you with experienced professionals from diverse industries—engineers, designers, analysts, marketers, and more—ready to help your business grow.
+              Our platform connects you with experienced professionals from diverse
+              industries—engineers, designers, analysts, marketers, and more—ready to help your
+              business grow.
             </p>
             <button className="mt-2 px-7 py-2 rounded-full bg-[#1e7d6b] text-white font-semibold shadow hover:scale-105 transition-all duration-200">
               Start Hiring
@@ -552,7 +684,8 @@ export default function LandingPage() {
           <div className="flex flex-col gap-2">
             <span className="font-extrabold text-2xl tracking-tight text-white">NEXEL</span>
             <span className="text-[#b7c7c2] text-sm max-w-xs">
-              The modern job portal connecting top talent with leading companies. Discover, connect, and grow your career or team.
+              The modern job portal connecting top talent with leading companies. Discover, connect,
+              and grow your career or team.
             </span>
             <div className="flex gap-3 mt-3">
               <a href="#" aria-label="Facebook" className="transition hover:scale-110">
@@ -575,27 +708,51 @@ export default function LandingPage() {
           <div className="flex flex-col md:flex-row gap-10 text-[#eaf1ef] text-sm">
             <div>
               <div className="font-bold mb-2 text-[#b7c7c2]">PRODUCT</div>
-              <a href="#" className="block hover:text-[#2fa97c] transition">About</a>
-              <a href="#" className="block hover:text-[#2fa97c] transition">Team</a>
-              <a href="#" className="block hover:text-[#2fa97c] transition">Careers</a>
+              <a href="#" className="block hover:text-[#2fa97c] transition">
+                About
+              </a>
+              <a href="#" className="block hover:text-[#2fa97c] transition">
+                Team
+              </a>
+              <a href="#" className="block hover:text-[#2fa97c] transition">
+                Careers
+              </a>
             </div>
             <div>
               <div className="font-bold mb-2 text-[#b7c7c2]">SUPPORT</div>
-              <a href="#" className="block hover:text-[#2fa97c] transition">How it Works</a>
-              <a href="#" className="block hover:text-[#2fa97c] transition">Trust & Safety</a>
-              <a href="#" className="block hover:text-[#2fa97c] transition">Help Centre</a>
+              <a href="#" className="block hover:text-[#2fa97c] transition">
+                How it Works
+              </a>
+              <a href="#" className="block hover:text-[#2fa97c] transition">
+                Trust & Safety
+              </a>
+              <a href="#" className="block hover:text-[#2fa97c] transition">
+                Help Centre
+              </a>
             </div>
             <div>
               <div className="font-bold mb-2 text-[#b7c7c2]">RESOURCES</div>
-              <a href="#" className="block hover:text-[#2fa97c] transition">Customer Stories</a>
-              <a href="#" className="block hover:text-[#2fa97c] transition">Cost Calculator</a>
-              <a href="#" className="block hover:text-[#2fa97c] transition">Startup Cities</a>
+              <a href="#" className="block hover:text-[#2fa97c] transition">
+                Customer Stories
+              </a>
+              <a href="#" className="block hover:text-[#2fa97c] transition">
+                Cost Calculator
+              </a>
+              <a href="#" className="block hover:text-[#2fa97c] transition">
+                Startup Cities
+              </a>
             </div>
             <div>
               <div className="font-bold mb-2 text-[#b7c7c2]">FREELANCE</div>
-              <a href="#" className="block hover:text-[#2fa97c] transition">Services</a>
-              <a href="#" className="block hover:text-[#2fa97c] transition">Services by Country</a>
-              <a href="#" className="block hover:text-[#2fa97c] transition">Skills</a>
+              <a href="#" className="block hover:text-[#2fa97c] transition">
+                Services
+              </a>
+              <a href="#" className="block hover:text-[#2fa97c] transition">
+                Services by Country
+              </a>
+              <a href="#" className="block hover:text-[#2fa97c] transition">
+                Skills
+              </a>
             </div>
           </div>
         </div>

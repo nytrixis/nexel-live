@@ -39,7 +39,7 @@ export default function AdminDashboard() {
   const [showJobForm, setShowJobForm] = useState(false);
   const [editingJob, setEditingJob] = useState<Job | null>(null);
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
-  const [activeView, setActiveView] = useState('dashboard');
+  const [, setActiveView] = useState('dashboard');
   const [open, setOpen] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
   const router = useRouter();
@@ -372,7 +372,7 @@ export default function AdminDashboard() {
               </div>
             ) : (
               <div className="grid gap-6">
-                {jobs.map((job, index) => (
+                {jobs.map((job) => (
                   <JobCard
                     key={job.id}
                     job={job}

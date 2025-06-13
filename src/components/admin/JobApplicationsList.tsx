@@ -64,7 +64,7 @@ export default function JobApplicationsList({ jobId, onClose }: JobApplicationsL
           Authorization: `Bearer ${accessToken}`,
         },
       });
-      let applicationsData = await res.json();
+      const applicationsData = await res.json();
       if (!Array.isArray(applicationsData)) {
         setApplications([]);
         setError(applicationsData?.error || 'Failed to load applications');
@@ -125,7 +125,7 @@ export default function JobApplicationsList({ jobId, onClose }: JobApplicationsL
           <div className="flex justify-between items-start">
             <div>
               <h2 className="text-2xl font-bold text-[#222] mb-2">
-                Applications for "{job?.title}"
+                Applications for &quot;{job?.title}&quot;
               </h2>
               <div className="flex items-center gap-4 text-sm text-[#666]">
                 <span className="flex items-center gap-1">
@@ -232,7 +232,7 @@ export default function JobApplicationsList({ jobId, onClose }: JobApplicationsL
                 </svg>
               </div>
               <h3 className="text-lg font-medium text-[#222] mb-2">No Applications Yet</h3>
-              <p className="text-[#666]">This job hasn't received any applications yet.</p>
+              <p className="text-[#666]">This job hasn&apos;t received any applications yet.</p>
             </div>
           ) : (
             <div className="space-y-4">
