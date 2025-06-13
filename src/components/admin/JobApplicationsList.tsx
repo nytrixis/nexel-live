@@ -71,9 +71,9 @@ export default function JobApplicationsList({ jobId, onClose }: JobApplicationsL
       } else {
         setApplications(applicationsData);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error fetching applications:', err);
-      setError(err.message || 'Failed to load applications');
+      setError(err instanceof Error ? err.message : 'Failed to load applications');
     } finally {
       setLoading(false);
     }

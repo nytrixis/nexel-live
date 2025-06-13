@@ -32,8 +32,8 @@ export function useJobs(collegeId: string) {
 
       if (fetchError) throw fetchError;
       setJobs(data || []);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
       console.error('Error fetching jobs:', err);
     } finally {
       setLoading(false);

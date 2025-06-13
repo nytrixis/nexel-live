@@ -38,8 +38,8 @@ export function useApplications(studentId: string) {
       const apps = data || [];
       setApplications(apps);
       setAppliedJobIds(apps.map((app) => app.job_id));
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
       console.error('Error fetching applications:', err);
     } finally {
       setLoading(false);
@@ -59,9 +59,9 @@ export function useApplications(studentId: string) {
       await fetchApplications(); // Refresh full data
 
       return { success: true };
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error applying to job:', err);
-      return { success: false, error: err.message };
+      return { success: false, error: err instanceof Error ? err.message : String(err) };
     }
   };
 
