@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabaseClient';
 
-export async function GET(req: NextRequest, { params }: { params: { studentId: string } }) {
+export async function GET(req: NextRequest, context: { params: { studentId: string } }) {
+  const { studentId } = (await context).params;
+
   // Get the current session
   const {
     data: { session },
@@ -12,7 +14,7 @@ export async function GET(req: NextRequest, { params }: { params: { studentId: s
   }
 
   // Only allow students to view their own applications
-  if (session.user.id !== params.studentId) {
+  if (session.user.id !== studentId) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
@@ -26,7 +28,7 @@ export async function GET(req: NextRequest, { params }: { params: { studentId: s
       )
     `,
     )
-    .eq('student_id', params.studentId)
+    .eq('student_id', studentId)
     .order('applied_at', { ascending: false });
 
   if (error) {
