@@ -10,8 +10,8 @@ function parseJwt(token: string) {
   }
 }
 
-export async function GET(req: NextRequest, context: { params: { id: string } }) {
-  const params = await context.params;
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
   const authHeader = req.headers.get('authorization');
@@ -39,7 +39,7 @@ export async function GET(req: NextRequest, context: { params: { id: string } })
   let query = supabase
     .from('job_applications')
     .select('*, student:users(id, name, email, college_id)')
-    .eq('job_id', params.id)
+    .eq('job_id', id)
     .order('applied_at', { ascending: false });
 
   if (user.role === 'student') {
