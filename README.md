@@ -6,13 +6,13 @@ A full-stack job portal where colleges can post jobs and students can apply, bui
 
 ## 🚀 Live Demo
 
-[View Live on Vercel](https://your-vercel-app-link.vercel.app)
+[View Live on Vercel](https://nexel-live-drve.vercel.app/)
 
 ---
 
 ## 🎥 Loom Video Walkthrough
 
-[Watch the Demo (Loom)](https://www.loom.com/share/your-loom-video-link)
+[Watch the Demo (Loom)](https://www.loom.com/share/f20c09753d0a4e63a706da1d71d9b2c6?sid=afefa443-db78-4bdd-84f0-f4e2cb0a093c)
 
 ---
 
