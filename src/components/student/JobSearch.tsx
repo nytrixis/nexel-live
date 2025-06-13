@@ -218,7 +218,7 @@ export default function JobSearch({
                     isApplied={appliedJobs.includes(job.id)}
                     onApply={() => onApply(job.id)}
                     index={index}
-                    isExpired={true}
+                    isExpiredIST={true}
                   />
                 ))}
               </div>
