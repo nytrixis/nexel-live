@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { formatToIST } from '@/utils/date';
 
 interface Job {
   id: string;
@@ -17,21 +18,15 @@ interface JobCardProps {
   isApplied: boolean;
   onApply: () => void;
   index: number;
-  isExpired?: boolean;
+  isExpiredIST?: boolean;
 }
 
-export default function JobCard({
-  job,
-  isApplied,
-  onApply,
-  index,
-  isExpired = false,
-}: JobCardProps) {
+export default function JobCard({ job, isApplied, onApply, index }: JobCardProps) {
   const [isApplying, setIsApplying] = useState(false);
   const [showFullDescription, setShowFullDescription] = useState(false);
 
   const handleApply = async () => {
-    if (isApplied || isExpired || isApplying) return;
+    if (isApplied || isExpiredIST || isApplying) return;
 
     setIsApplying(true);
     try {
@@ -43,21 +38,23 @@ export default function JobCard({
     }
   };
 
+  const getISTDate = (dateString: string) =>
+    new Date(new Date(dateString).toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+  const nowIST = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+
   const getDaysUntilDeadline = () => {
-    const deadline = new Date(job.deadline);
-    const today = new Date();
+    const deadline = getISTDate(job.deadline);
+    const today = nowIST;
     const diffTime = deadline.getTime() - today.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays;
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
+    return formatToIST(dateString, { dateStyle: 'medium' });
   };
+
+  const isExpiredIST = getISTDate(job.deadline) < nowIST;
 
   const daysLeft = getDaysUntilDeadline();
   const isUrgent = daysLeft <= 3 && daysLeft > 0;
@@ -65,10 +62,10 @@ export default function JobCard({
   return (
     <motion.div
       className={`bg-white rounded-2xl shadow border border-[#dbe7e3] p-6 hover:shadow-lg transition-shadow ${
-        isExpired ? 'opacity-60' : ''
+        isExpiredIST ? 'opacity-60' : ''
       }`}
       initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: isExpired ? 0.6 : 1, y: 0 }}
+      animate={{ opacity: isExpiredIST ? 0.6 : 1, y: 0 }}
       transition={{ duration: 0.5, delay: index * 0.1 }}
     >
       {/* Header */}
@@ -108,7 +105,7 @@ export default function JobCard({
         </div>
 
         {/* Status Badge */}
-        {isExpired ? (
+        {isExpiredIST ? (
           <div className="px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
             Expired
           </div>
@@ -162,10 +159,10 @@ export default function JobCard({
         </div>
         <span
           className={`text-sm font-medium ${
-            isExpired ? 'text-red-600' : isUrgent ? 'text-orange-600' : 'text-[#1e7d6b]'
+            isExpiredIST ? 'text-red-600' : isUrgent ? 'text-orange-600' : 'text-[#1e7d6b]'
           }`}
         >
-          {isExpired
+          {isExpiredIST
             ? 'Expired'
             : daysLeft === 0
               ? 'Today'
@@ -189,7 +186,7 @@ export default function JobCard({
             </svg>
             Applied
           </div>
-        ) : isExpired ? (
+        ) : isExpiredIST ? (
           <div className="px-6 py-3 rounded-full bg-gray-100 text-gray-600 font-semibold">
             Expired
           </div>

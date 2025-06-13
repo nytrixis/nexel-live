@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { supabase } from '@/lib/supabaseClient';
 import ApplicantCard from './ApplicantCard';
+import { formatToIST } from '@/utils/date';
 
 interface Application {
   id: string;
@@ -153,7 +154,8 @@ export default function JobApplicationsList({ jobId, onClose }: JobApplicationsL
                       d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                     />
                   </svg>
-                  Deadline: {job && new Date(job.deadline).toLocaleDateString()}
+                  Deadline:{' '}
+                  {job && formatToIST(job.deadline, { dateStyle: 'medium', timeStyle: 'short' })}
                 </span>
                 <span className="flex items-center gap-1">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

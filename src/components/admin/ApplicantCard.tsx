@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { formatToIST } from '@/utils/date';
 
 interface Application {
   id: string;
@@ -23,14 +24,25 @@ export default function ApplicantCard({ application, index }: ApplicantCardProps
   const [showDetails, setShowDetails] = useState(false);
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffTime = Math.abs(now.getTime() - date.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    // Convert both dates to IST
+    const date = new Date(
+      new Date(dateString).toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }),
+    );
+    const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+
+    // Compare calendar days in IST
+    const dateDay = date.getFullYear() + '-' + date.getMonth() + '-' + date.getDate();
+    const nowDay = now.getFullYear() + '-' + now.getMonth() + '-' + now.getDate();
+
+    if (dateDay === nowDay) return 'Today';
+
+    // Calculate difference in days
+    const diffTime = now.setHours(0, 0, 0, 0) - date.setHours(0, 0, 0, 0);
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
     if (diffDays === 1) return 'Yesterday';
     if (diffDays < 7) return `${diffDays} days ago`;
-    return date.toLocaleDateString();
+    return formatToIST(dateString, { dateStyle: 'medium' });
   };
 
   const getInitials = (name: string) => {
@@ -135,12 +147,9 @@ export default function ApplicantCard({ application, index }: ApplicantCardProps
                 <div className="flex justify-between">
                   <span className="text-[#666]">Applied On:</span>
                   <span className="text-[#222]">
-                    {new Date(application.applied_at).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit',
+                    {formatToIST(application.applied_at, {
+                      dateStyle: 'medium',
+                      timeStyle: 'short',
                     })}
                   </span>
                 </div>
@@ -205,7 +214,8 @@ export default function ApplicantCard({ application, index }: ApplicantCardProps
               <div className="flex items-center gap-3 text-sm">
                 <div className="w-2 h-2 rounded-full bg-[#1e7d6b]"></div>
                 <span className="text-[#666]">
-                  Application submitted on {new Date(application.applied_at).toLocaleDateString()}
+                  Application submitted on{' '}
+                  {formatToIST(application.applied_at, { dateStyle: 'medium' })}
                 </span>
               </div>
               <div className="flex items-center gap-3 text-sm">

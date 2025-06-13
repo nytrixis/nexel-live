@@ -124,9 +124,7 @@ export default function AdminDashboard() {
 
         if (error) throw error;
       } else {
-        const { error } = await supabase
-          .from('jobs')
-          .insert([{ ...jobData, created_at: new Date().toISOString() }]);
+        const { error } = await supabase.from('jobs').insert([jobData]);
 
         if (error) throw error;
       }

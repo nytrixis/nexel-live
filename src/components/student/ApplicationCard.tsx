@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { formatToIST } from '@/utils/date';
 
 interface JobApplication {
   id: string;
@@ -26,16 +27,14 @@ export default function ApplicationCard({ application, index }: ApplicationCardP
   const { job } = application;
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
+    return formatToIST(dateString, { dateStyle: 'medium' });
   };
 
   const getTimeAgo = (dateString: string) => {
-    const now = new Date();
-    const date = new Date(dateString);
+    const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+    const date = new Date(
+      new Date(dateString).toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }),
+    );
     const diffTime = Math.abs(now.getTime() - date.getTime());
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
@@ -47,15 +46,18 @@ export default function ApplicationCard({ application, index }: ApplicationCardP
     return formatDate(dateString);
   };
 
-  const isExpired = new Date(job.deadline) <= new Date();
+  const getISTDate = (dateString: string) =>
+    new Date(new Date(dateString).toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+  const nowIST = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+
+  const isExpired = getISTDate(job.deadline) <= nowIST;
   const getDaysUntilDeadline = () => {
-    const deadline = new Date(job.deadline);
-    const today = new Date();
+    const deadline = getISTDate(job.deadline);
+    const today = nowIST;
     const diffTime = deadline.getTime() - today.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays;
   };
-
   const daysLeft = getDaysUntilDeadline();
 
   return (

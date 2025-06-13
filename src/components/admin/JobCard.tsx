@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import JobStatusToggle from './JobStatusToggle';
+import { formatToIST } from '@/utils/date';
 
 interface Job {
   id: string;
@@ -37,9 +38,13 @@ export default function JobCard({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const isExpired = new Date(job.deadline) < new Date();
+  const getISTDate = (dateString: string) =>
+    new Date(new Date(dateString).toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+  const nowIST = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+
+  const isExpired = getISTDate(job.deadline) < nowIST;
   const daysUntilDeadline = Math.ceil(
-    (new Date(job.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24),
+    (getISTDate(job.deadline).getTime() - nowIST.getTime()) / (1000 * 60 * 60 * 24),
   );
 
   const handleDelete = async () => {
@@ -105,7 +110,7 @@ export default function JobCard({
                     d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4h3a1 1 0 011 1v9a1 1 0 01-1 1H5a1 1 0 01-1-1V8a1 1 0 011-1h3z"
                   />
                 </svg>
-                Posted {new Date(job.created_at).toLocaleDateString()}
+                Posted {formatToIST(job.created_at, { dateStyle: 'medium' })}
               </span>
             </div>
           </div>
@@ -135,7 +140,7 @@ export default function JobCard({
               />
             </svg>
             <span className="text-[#222] font-medium">
-              Deadline: {new Date(job.deadline).toLocaleDateString()}
+              Deadline: {formatToIST(job.deadline, { dateStyle: 'medium' })}
             </span>
           </div>
           <span
